@@ -101,10 +101,20 @@ router.get('/:id/comments', (req, res) =>{
 
 router.delete('/:id', (req, res) =>{
     const id = req.params.id;
+    let post;
+    db.findById(id)
+        .then(obj =>{
+            if(obj){
+                post = obj
+            } else {
+                res.status(404).json({success: false, errorMessage: "The post with the specified ID does not exist."})
+            }
+        })
+        .catch(err => res.status(500).json({success: false, errorMessage: "The post could not be removed."}))
     db.remove(id)
-        .then(comment =>{
-            if(comment){
-                res.status(201).json({success: true, data: comment});
+        .then(postid =>{
+            if(postid){
+                res.status(201).json({success: true, data: {...postid, ...post }});
             } else {
                 res.status(404).json({success: false, errorMessage: "The post with the specified ID does not exist."})
                 return res.end();
